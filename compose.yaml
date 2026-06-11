@@ -1,0 +1,7 @@
+name: unity-ranking-api
+
+services:
+  api:
+    build: ./server
+    ports:
+      - "8080:8000"
