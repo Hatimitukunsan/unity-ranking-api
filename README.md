@@ -31,10 +31,48 @@ unity-ranking-api/
   README.md
   compose.yaml
   server/
+    Dockerfile
+    main.py
+    requirements.txt
   unity-client/
 ```
 
 ## 開発状況
 
-現在は設計・準備段階です。
-今後、FastAPIサーバー、PostgreSQL接続、UnityクライアントのHTTP通信処理を順番に実装していきます。
+現在はFastAPIサーバーをDocker Composeで起動できる段階です。
+今後、PostgreSQL接続、ランキングAPI、UnityクライアントのHTTP通信処理を順番に実装していきます。
+
+## 起動方法
+
+Docker Desktopを起動した状態で、リポジトリ直下から以下を実行します。
+
+```powershell
+docker compose up
+```
+
+起動後、ブラウザで以下にアクセスします。
+
+```txt
+http://localhost:8080
+http://localhost:8080/docs
+```
+
+停止する場合は以下を実行します。
+
+```powershell
+docker compose down
+```
+
+## 現在のAPI
+
+### `GET /`
+
+動作確認用のエンドポイントです。
+
+Response:
+
+```json
+{
+  "message": "Hello World"
+}
+```
