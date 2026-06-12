@@ -1,7 +1,28 @@
 name: unity-ranking-api
 
 services:
+  # メインのapi
   api:
     build: ./server
     ports:
-      - "8080:8000"
+      - "${API_HOST_PORT}:8000"
+
+
+  # データベース用
+  db:
+    image: postgres:17.10
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  # データベースを操作する用
+  adminer:
+    image: adminer:4.17.1
+    ports:
+      - "${ADMINER_HOST_PORT}:8080"
+
+volumes:
+  postgres-data:
