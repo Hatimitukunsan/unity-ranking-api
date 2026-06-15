@@ -2,7 +2,7 @@ import os
 from contextlib import asynccontextmanager
 from typing import Annotated
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Query
 from sqlalchemy import text
 from sqlmodel import Field, SQLModel, Session, create_engine, select
 
@@ -81,7 +81,10 @@ def create_score(score_create: ScoreCreate, session: SessionDep):
 
 
 @app.get("/ranking", response_model=list[ScorePublic])
-def read_ranking(session: SessionDep, limit: int = 10):
+def read_ranking(
+    session: SessionDep,
+    limit: Annotated[int, Query(ge=1, le=500)] = 100,
+):
     # スコアの高い順に並べ、指定件数だけ取得する
     statement = select(Score).order_by(Score.score.desc()).limit(limit)
     scores = session.exec(statement).all()
