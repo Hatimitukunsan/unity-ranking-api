@@ -1,0 +1,9 @@
+{
+	"name": "unity-ranking-api",
+	"dockerComposeFile": [
+		"../compose.yaml",
+		"docker-compose.yml"
+	],
+	"service": "api",
+	"workspaceFolder": "/workspace"
+}

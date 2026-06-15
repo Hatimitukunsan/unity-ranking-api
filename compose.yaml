@@ -6,6 +6,13 @@ services:
     build: ./server
     ports:
       - "${API_HOST_PORT}:8000"
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./server
+          target: /app
+        - action: rebuild
+          path: ./server/requirements.txt
 
 
   # データベース用
