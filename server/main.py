@@ -2,8 +2,8 @@ import os
 from contextlib import asynccontextmanager
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, Query
-from sqlalchemy import text
+from fastapi import Depends, FastAPI, HTTPException, Query
+from sqlalchemy import func, text
 from sqlmodel import Field, SQLModel, Session, create_engine, select
 
 # DB接続情報はDocker Composeから環境変数として渡す
@@ -30,6 +30,11 @@ class ScoreCreate(ScoreBase):
 # APIレスポンスとして返すデータ
 class ScorePublic(ScoreBase):
     id: int
+
+
+# 順位確認APIのレスポンスとして返すデータ
+class ScoreRank(ScorePublic):
+    rank: int
 
 
 def create_db_and_tables():
@@ -89,3 +94,19 @@ def read_ranking(
     statement = select(Score).order_by(Score.score.desc()).limit(limit)
     scores = session.exec(statement).all()
     return scores
+
+
+@app.get("/scores/{score_id}/rank", response_model=ScoreRank)
+def read_score_rank(score_id: int, session: SessionDep):
+    # 指定されたIDのスコアを取得する
+    score = session.get(Score, score_id)
+    if score is None:
+        raise HTTPException(status_code=404, detail="Score not found")
+
+    # 同点は同順位にするため、自分より高いスコアだけを数える
+    higher_score_count = session.exec(
+        select(func.count()).select_from(Score).where(Score.score > score.score)
+    ).one()
+    my_rank = higher_score_count + 1
+
+    return ScoreRank.model_validate(score, update={"rank": my_rank})
