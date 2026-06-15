@@ -1,0 +1,6 @@
+services:
+  api:
+    volumes:
+      - .:/workspace
+      - ./server:/app
+    command: sleep infinity
