@@ -1,11 +1,12 @@
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query
-from sqlalchemy import func, text
+from sqlalchemy import text
 from sqlmodel import select
 
 from database import SessionDep
 from models import Score, ScoreCreate, ScorePublic, ScoreRank
+from services.scores import calculate_score_rank, create_score_record
 
 router = APIRouter()
 
@@ -19,13 +20,7 @@ def health_db(session: SessionDep):
 
 @router.post("/scores", response_model=ScorePublic)
 def create_score(score_create: ScoreCreate, session: SessionDep):
-    # リクエストBodyをDB保存用モデルに変換して登録する
-    score = Score.model_validate(score_create)
-    session.add(score)
-    session.commit()
-    # commit後にDB側で決まったidなどをPythonオブジェクトへ反映する
-    session.refresh(score)
-    return score
+    return create_score_record(session, score_create)
 
 
 @router.get("/ranking", response_model=list[ScorePublic])
@@ -46,10 +41,5 @@ def read_score_rank(score_id: int, session: SessionDep):
     if score is None:
         raise HTTPException(status_code=404, detail="Score not found")
 
-    # 同点は同順位にするため、自分より高いスコアだけを数える
-    higher_score_count = session.exec(
-        select(func.count()).select_from(Score).where(Score.score > score.score)
-    ).one()
-    my_rank = higher_score_count + 1
-
-    return ScoreRank.model_validate(score, update={"rank": my_rank})
+    rank = calculate_score_rank(session, score)
+    return ScoreRank.model_validate(score, update={"rank": rank})
