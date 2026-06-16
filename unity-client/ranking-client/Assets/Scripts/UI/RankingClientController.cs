@@ -9,7 +9,7 @@ namespace Hakusa.RankingClient.UI
     /// ランキング画面全体の流れを制御するControllerです。
     /// Viewから入力やボタンイベントを受け取り、ApiClientを呼び出して結果をViewへ反映します。
     /// </summary>
-    public sealed class RankingClientController : MonoBehaviour
+    public class RankingClientController : MonoBehaviour
     {
         /// <summary>
         /// 接続先APIのベースURLです。

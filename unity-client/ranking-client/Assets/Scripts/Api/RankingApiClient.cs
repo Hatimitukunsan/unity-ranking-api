@@ -11,7 +11,7 @@ namespace Hakusa.RankingClient.Api
     /// FastAPIのランキングAPIと通信するためのクラス
     /// UIを直接触らず、HTTP通信とJSON変換だけを担当する
     /// </summary>
-    public sealed class RankingApiClient
+    public class RankingApiClient
     {
         /// <summary>
         /// APIサーバーのベースURL

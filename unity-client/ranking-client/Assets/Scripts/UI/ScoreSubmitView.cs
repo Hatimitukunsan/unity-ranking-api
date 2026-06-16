@@ -9,7 +9,7 @@ namespace Hakusa.RankingClient.UI
     /// スコア送信エリアの表示と入力取得を担当するView
     /// API通信は行わず、Controllerに「送信ボタンが押された」ことだけを知らせる
     /// </summary>
-    public sealed class ScoreSubmitView : MonoBehaviour
+    public class ScoreSubmitView : MonoBehaviour
     {
         /// <summary>
         /// ユーザー名を入力するInputField

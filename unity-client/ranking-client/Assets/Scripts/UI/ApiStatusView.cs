@@ -7,7 +7,7 @@ namespace Hakusa.RankingClient.UI
     /// API接続状態を画面下部に表示するView
     /// 通信中か、成功したか、エラーになったかをユーザーに伝える
     /// </summary>
-    public sealed class ApiStatusView : MonoBehaviour
+    public class ApiStatusView : MonoBehaviour
     {
         /// <summary>
         /// API状態を表示するText
