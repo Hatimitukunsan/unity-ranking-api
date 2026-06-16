@@ -5,9 +5,10 @@ namespace Hakusa.RankingClient.Api
     /// <summary>
     /// POST /scores に送るリクエスト用モデル
     /// FastAPI側の ScoreCreate と同じ形にしておく
+    /// JsonUtilityでJSONに変換するためSerializableを付けている
     /// </summary>
     [Serializable]
-    public sealed class ScoreCreateRequest
+    public class ScoreCreateRequest
     {
         /// <summary>
         /// 登録するユーザー名
@@ -35,10 +36,11 @@ namespace Hakusa.RankingClient.Api
 
     /// <summary>
     /// POST /scores や GET /ranking から返ってくるスコア情報
+    /// JsonUtilityでJSONから変換するためSerializableを付けている
     /// JsonUtilityで変換するため、プロパティではなくpublicフィールドにしている
     /// </summary>
     [Serializable]
-    public sealed class ScoreResponse
+    public class ScoreResponse
     {
         /// <summary>
         /// ユーザー名
@@ -58,9 +60,10 @@ namespace Hakusa.RankingClient.Api
 
     /// <summary>
     /// GET /scores/{score_id}/rank から返ってくる順位付きのスコア情報
+    /// JsonUtilityでJSONから変換するためSerializableを付けている
     /// </summary>
     [Serializable]
-    public sealed class ScoreRankResponse
+    public class ScoreRankResponse
     {
         /// <summary>
         /// ユーザー名
@@ -87,10 +90,11 @@ namespace Hakusa.RankingClient.Api
     /// <summary>
     /// UnityのJsonUtilityでJSON配列を扱うためのラッパー
     /// {"items":[...]} の形に包んでから変換する
+    /// JsonUtilityでJSONから変換するためSerializableを付けている
     /// </summary>
     /// <typeparam name="T">配列要素の型</typeparam>
     [Serializable]
-    internal sealed class JsonArrayWrapper<T>
+    internal class JsonArrayWrapper<T>
     {
         /// <summary>
         /// ラップされた配列
