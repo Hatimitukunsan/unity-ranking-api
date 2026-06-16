@@ -23,8 +23,8 @@ namespace Hakusa.RankingClient.UI
         [SerializeField] private Text limitInfoText;
 
         /// <summary>
-        /// 旧形式の単一Text表示用フィールド
-        /// 現在は主にエラー表示などのフォールバックとして使う
+        /// Text表示用フィールド
+        /// 主にエラー表示などのフォールバックとして使う
         /// </summary>
         [SerializeField] private Text rankingText;
 
@@ -144,8 +144,8 @@ namespace Hakusa.RankingClient.UI
             if (highlightedScore != null && !containsHighlightedScore)
             {
                 rankLines.Add("...");
-                usernameLines.Add(string.Empty);
-                scoreLines.Add(string.Empty);
+                usernameLines.Add("...");
+                scoreLines.Add("...");
 
                 rankLines.Add(HighlightLine($"{highlightedScore.rank}."));
                 usernameLines.Add(HighlightLine(highlightedScore.username));
