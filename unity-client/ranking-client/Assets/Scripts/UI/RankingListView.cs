@@ -35,27 +35,6 @@ namespace Hakusa.RankingClient.UI
             }
         }
 
-        public void Configure(Button refreshButton, Text limitInfoText, Text rankingText)
-        {
-            this.refreshButton = refreshButton;
-            this.limitInfoText = limitInfoText;
-            this.rankingText = rankingText;
-        }
-
-        public void Configure(
-            Button refreshButton,
-            Text limitInfoText,
-            Text rankColumnText,
-            Text usernameColumnText,
-            Text scoreColumnText)
-        {
-            this.refreshButton = refreshButton;
-            this.limitInfoText = limitInfoText;
-            this.rankColumnText = rankColumnText;
-            this.usernameColumnText = usernameColumnText;
-            this.scoreColumnText = scoreColumnText;
-        }
-
         public void ShowWaiting(int limit)
         {
             // まだGET /ranking を呼んでいない状態

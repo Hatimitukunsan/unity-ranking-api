@@ -32,18 +32,6 @@ namespace Hakusa.RankingClient.UI
             }
         }
 
-        public void Configure(
-            InputField usernameInput,
-            InputField scoreInput,
-            Button submitButton,
-            Text statusText)
-        {
-            this.usernameInput = usernameInput;
-            this.scoreInput = scoreInput;
-            this.submitButton = submitButton;
-            this.statusText = statusText;
-        }
-
         public bool TryCreateRequest(out ScoreCreateRequest requestBody)
         {
             requestBody = null;

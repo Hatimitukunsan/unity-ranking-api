@@ -10,13 +10,6 @@ namespace Hakusa.RankingClient.UI
         [SerializeField] private Text statusText;
         [SerializeField] private string apiBaseUrl = "http://localhost:8080";
 
-        public void Configure(Text statusText, string apiBaseUrl)
-        {
-            // Editorスクリプトから自動生成したTextとAPI URLを渡す
-            this.statusText = statusText;
-            this.apiBaseUrl = apiBaseUrl;
-        }
-
         public void SetApiBaseUrl(string apiBaseUrl)
         {
             // Controller側の設定値を実行時にも反映する
