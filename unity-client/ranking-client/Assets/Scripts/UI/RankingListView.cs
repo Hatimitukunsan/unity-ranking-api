@@ -6,19 +6,51 @@ using UnityEngine.UI;
 
 namespace Hakusa.RankingClient.UI
 {
-    // ランキング一覧エリアの表示を担当するView
-    // 最初はText 1つに複数行で表示し、Prefab化やScrollView化は後回しにする
+    /// <summary>
+    /// ランキング一覧エリアの表示を担当するView
+    /// 順位、ユーザー名、スコアを別々のText列に分けて表示する
+    /// </summary>
     public sealed class RankingListView : MonoBehaviour
     {
+        /// <summary>
+        /// ランキングを再取得するButton
+        /// </summary>
         [SerializeField] private Button refreshButton;
+
+        /// <summary>
+        /// 「上位n件を表示中」を表示するText
+        /// </summary>
         [SerializeField] private Text limitInfoText;
+
+        /// <summary>
+        /// 旧形式の単一Text表示用フィールド
+        /// 現在は主にエラー表示などのフォールバックとして使う
+        /// </summary>
         [SerializeField] private Text rankingText;
+
+        /// <summary>
+        /// 順位列を表示するText
+        /// </summary>
         [SerializeField] private Text rankColumnText;
+
+        /// <summary>
+        /// ユーザー名列を表示するText
+        /// </summary>
         [SerializeField] private Text usernameColumnText;
+
+        /// <summary>
+        /// スコア列を表示するText
+        /// </summary>
         [SerializeField] private Text scoreColumnText;
 
+        /// <summary>
+        /// Refreshボタンが押されたことをControllerへ通知するイベント
+        /// </summary>
         public event Action RefreshRequested;
 
+        /// <summary>
+        /// GameObjectが有効になったときにRefreshボタンのイベントを購読する
+        /// </summary>
         private void OnEnable()
         {
             if (refreshButton != null)
@@ -27,6 +59,9 @@ namespace Hakusa.RankingClient.UI
             }
         }
 
+        /// <summary>
+        /// GameObjectが無効になったときにRefreshボタンのイベント購読を解除する
+        /// </summary>
         private void OnDisable()
         {
             if (refreshButton != null)
@@ -35,6 +70,10 @@ namespace Hakusa.RankingClient.UI
             }
         }
 
+        /// <summary>
+        /// ランキング未取得の待機状態を表示する
+        /// </summary>
+        /// <param name="limit">表示予定の上限件数</param>
         public void ShowWaiting(int limit)
         {
             // まだGET /ranking を呼んでいない状態
@@ -42,6 +81,10 @@ namespace Hakusa.RankingClient.UI
             SetText("ランキング未取得");
         }
 
+        /// <summary>
+        /// ランキング取得中の状態を表示する
+        /// </summary>
+        /// <param name="limit">取得中の上限件数</param>
         public void ShowLoading(int limit)
         {
             // GET /ranking のレスポンス待ち
@@ -49,6 +92,13 @@ namespace Hakusa.RankingClient.UI
             SetText("ランキング取得中...");
         }
 
+        /// <summary>
+        /// APIから取得したランキングを画面へ表示する
+        /// 直近で投稿したスコアがある場合は、その行を強調表示する
+        /// </summary>
+        /// <param name="ranking">APIから取得したランキング配列</param>
+        /// <param name="limit">表示上限件数</param>
+        /// <param name="highlightedScore">強調したい自分のスコア。未投稿ならnull</param>
         public void ShowRanking(ScoreResponse[] ranking, int limit, ScoreRankResponse highlightedScore)
         {
             SetLimitInfo(limit);
@@ -105,11 +155,20 @@ namespace Hakusa.RankingClient.UI
             SetRankingColumns(rankLines, usernameLines, scoreLines);
         }
 
+        /// <summary>
+        /// ランキング欄にエラーを表示する
+        /// </summary>
+        /// <param name="message">表示するメッセージ</param>
         public void ShowError(string message)
         {
             SetText(message);
         }
 
+        /// <summary>
+        /// Refreshボタンの操作可否を切り替える
+        /// 通信中の多重リクエストを防ぐために使う
+        /// </summary>
+        /// <param name="interactable">操作可能にするならtrue</param>
         public void SetInteractable(bool interactable)
         {
             // 通信中にRefreshが連打されないようにする
@@ -119,11 +178,19 @@ namespace Hakusa.RankingClient.UI
             }
         }
 
+        /// <summary>
+        /// RefreshボタンのOnClickから呼ばれ、RefreshRequestedイベントを発火する
+        /// </summary>
         private void NotifyRefreshRequested()
         {
             RefreshRequested?.Invoke();
         }
 
+        /// <summary>
+        /// 単一メッセージをランキング欄に表示する
+        /// 通常のランキング表示では列表示を使う
+        /// </summary>
+        /// <param name="text">表示する文字列</param>
         private void SetText(string text)
         {
             if (rankingText != null)
@@ -139,6 +206,12 @@ namespace Hakusa.RankingClient.UI
                 new[] { string.Empty });
         }
 
+        /// <summary>
+        /// 順位、ユーザー名、スコアをそれぞれのText列へ反映する
+        /// </summary>
+        /// <param name="ranks">順位列</param>
+        /// <param name="usernames">ユーザー名列</param>
+        /// <param name="scores">スコア列</param>
         private void SetRankingColumns(
             IReadOnlyList<string> ranks,
             IReadOnlyList<string> usernames,
@@ -149,6 +222,12 @@ namespace Hakusa.RankingClient.UI
             SetColumnText(scoreColumnText, scores);
         }
 
+        /// <summary>
+        /// 指定されたTextに複数行の文字列を設定する
+        /// 自分の行の強調表示にrich textを使うためsupportRichTextを有効にする
+        /// </summary>
+        /// <param name="targetText">反映先のText</param>
+        /// <param name="lines">表示する行一覧</param>
         private static void SetColumnText(Text targetText, IReadOnlyList<string> lines)
         {
             if (targetText == null)
@@ -160,6 +239,10 @@ namespace Hakusa.RankingClient.UI
             targetText.text = string.Join("\n", lines);
         }
 
+        /// <summary>
+        /// 表示上限件数の説明テキストを更新する
+        /// </summary>
+        /// <param name="limit">表示上限件数</param>
         private void SetLimitInfo(int limit)
         {
             if (limitInfoText != null)
@@ -168,10 +251,14 @@ namespace Hakusa.RankingClient.UI
             }
         }
 
+        /// <summary>
+        /// 自分のスコア行を青色かつ太字にするrich textを付ける
+        /// </summary>
+        /// <param name="line">強調したい文字列</param>
+        /// <returns>rich textタグ付きの文字列</returns>
         private static string HighlightLine(string line)
         {
             return $"<b><color=#0B47B7>{line}</color></b>";
         }
-
     }
 }
