@@ -6,7 +6,7 @@ namespace Hakusa.RankingClient.Api
     /// API通信でHTTPエラーやネットワークエラーが起きたときに投げる例外
     /// UI側でステータスコードやレスポンス本文を表示しやすくするために用意している
     /// </summary>
-    public sealed class RankingApiException : Exception
+    public class RankingApiException : Exception
     {
         /// <summary>
         /// HTTPステータスコード

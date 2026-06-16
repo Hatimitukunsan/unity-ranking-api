@@ -10,7 +10,7 @@ namespace Hakusa.RankingClient.UI
     /// ランキング一覧エリアの表示を担当するView
     /// 順位、ユーザー名、スコアを別々のText列に分けて表示する
     /// </summary>
-    public sealed class RankingListView : MonoBehaviour
+    public class RankingListView : MonoBehaviour
     {
         /// <summary>
         /// ランキングを再取得するButton
