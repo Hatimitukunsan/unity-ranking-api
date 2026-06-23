@@ -1,154 +1,96 @@
 # Unity Ranking API
 
-UnityクライアントからFastAPIサーバーへスコアを送信し、PostgreSQLに保存されたランキングを取得・表示するクライアント・サーバー構成のサンプルプロジェクトです。
+## 概要
 
-このプロジェクトでは、UnityからのHTTP通信、FastAPIによるWeb API実装、PostgreSQLへのデータ保存、Docker Composeによる開発環境構築を扱います。
+UnityクライアントとFastAPIサーバーを連携させた、シンプルなランキング機能のサンプル実装です。
+
+Unityからユーザー名とスコアを送信し、サーバー側でPostgreSQLに保存します。
+保存されたスコアはランキングとして取得でき、Unityクライアント上で表示できます。
+Docker ComposeでAPIサーバー、DB、Adminer（データベースの確認用）を起動する想定です。
+
 
 ## 主な機能
 
-### Unityクライアント
-
-- ユーザー名とスコアを入力してサーバーへ送信
-- サーバーからランキングを取得して表示
-- スコア送信後に自分の順位を表示
-- ランキング圏外の場合でも自分の順位を追加表示
-- サーバー停止時など、通信に失敗した場合はエラーとして表示
-
-### APIサーバー
-
-- `POST /scores` でスコアを登録
-- `GET /ranking` でスコア順のランキングを取得
-- `GET /scores/{score_id}/rank` で指定スコアの順位を取得
-- 同点のスコアは同順位として計算
-- `GET /health/db` でDB接続を確認
-
-### 開発・確認用
-
-- Docker ComposeでFastAPI、PostgreSQL、Adminerをまとめて起動
-- JSONファイルからサンプルデータを投入
-- AdminerでPostgreSQLのデータを確認・編集
-- Dev ContainersでFastAPI側の開発環境を利用
+- Unityクライアントからスコアを登録
+- スコア順のランキングを取得
+- 登録したスコアの順位を取得（同点スコアは同順位として扱う）
+- PostgreSQLにランキングデータを保存
 
 ## 技術構成
 
-| Area | Technology |
-|---|---|
-| Client | Unity 2022.3.14f1 / C# |
-| API Server | FastAPI / Python |
-| Database | PostgreSQL |
+- Unity 2022.3.14f1
+- FastAPI / Python
+- PostgreSQL
+- SQLModel
+- Docker / Docker Compose
+- Adminer
 
-補助的に使っているツール:
+## 必要環境
 
-- SQLModel: PythonコードからDBのテーブルやデータを扱いやすくするために使用
-- Docker Compose: APIサーバー、PostgreSQL、Adminerをまとめて起動するために使用
-- Adminer: ブラウザからPostgreSQLの中身を確認・登録・修正するために使用
-- Dev Containers: VS Codeでコンテナ内の開発環境を利用するために使用
+- Docker Compose (サーバー用)
+- Unity 2022.3.14f1 (クライアント用)
 
-## ディレクトリ構成
-
-- `README.md`
-- `compose.yaml`
-- `.env.example`
-- `.devcontainer/`
-  - `devcontainer.json`
-  - `docker-compose.yml`
-- `server/`
-  - `Dockerfile`
-  - `requirements.txt`
-  - `main.py`
-  - `database.py`
-  - `models.py`
-  - `seed.py`
-  - `routers/`
-    - `scores.py`
-  - `services/`
-    - `scores.py`
-  - `seed_data/`
-    - `sample_scores.json`
-    - `manual_test_scores.json`
-- `unity-client/`
-  - `ranking-client/`
-    - `Assets/`
-      - `Scenes/`
-        - `RankingClientScene.unity`
-      - `Scripts/`
-        - `Api/`
-        - `UI/`
-
-## セットアップ
+## インストール
+このプロジェクトでは、APIサーバー、PostgreSQL、AdminerをDocker Composeで起動します。
+初回は `.env` を作成してから、Docker Composeを実行してください。
 
 ### 1. `.env` を作成
 
-初回は、リポジトリ直下で `.env.example` をコピーして `.env` を作成します。
+`unity-ranking-api\.env.example` をコピーして `unity-ranking-api\.env` を作成します。
 
+### 2. サーバーを起動
 
-
-`.env.example` の内容は以下です。
-
-```txt
-POSTGRES_DB=ranking
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=example_password
-
-API_HOST_PORT=8080
-ADMINER_HOST_PORT=8081
-```
-
-`.env` はローカル環境用の設定ファイルなのでGit管理しません。
-
-### 2. Docker Composeで起動
-
-Docker Desktopを起動した状態で、リポジトリ直下から以下を実行します。
+リポジトリ直下でDocker Composeを実行します。
 
 ```powershell
 docker compose up
 ```
 
-依存関係やDockerfileを変更した後は、必要に応じて再ビルドします。
+サーバー起動後は以下にアクセスすることができます。
 
-```powershell
-docker compose up --build
-```
-
-起動後、以下にアクセスできます。
-
-- FastAPI: `http://localhost:8080`
+- API: `http://localhost:8080`
 - Swagger UI: `http://localhost:8080/docs`
 - Adminer: `http://localhost:8081`
 
-## Unityクライアントの確認
+### 3. Unity起動
+
 
 Unity Hubから以下のプロジェクトを開きます。
 
 ```txt
 unity-client/ranking-client
 ```
+UnityからサーバーのAPIにアクセスすることができます。
 
-使用バージョン:
+### 4. サーバー停止方法
 
-```txt
-Unity 2022.3.14f1
+以下でコンテナを停止することができます。
+
+```
+docker compose down
 ```
 
-確認手順:
+PostgreSQLのデータは名前付きvolume `postgres-data` に保存されます。
+通常の `docker compose down` では削除されません。
 
-1. `Assets/Scenes/RankingClientScene.unity` を開く
-2. Docker ComposeでAPIサーバーを起動しておく
-3. Unity EditorでPlayする
-4. `Refresh` でランキングを取得する
-5. UsernameとScoreを入力し、`Submit` でスコアを送信する
+コンテナとDBデータをまとめて削除する場合はコンテナ停止時に以下を実行します。
 
-デフォルトのAPI接続先は以下です。
-
-```txt
-http://localhost:8080
+```
+docker compose down -v
 ```
 
-## API一覧
+## Unityクライアント
+サンプルシーンは、`Assets/Scenes/RankingClientScene.unity`です。
+こちらのシーンでは、APIとの通信を確認することができる簡単なサンプルを実行することができます。
+
+なお、デフォルトのAPI接続先は`http://localhost:8080`となっています。`Ranking Client Controller`コンポーネントの`Api Base Url`を変更することで、接続先を変更することもできます。
+![Base URL の設定場所](images/unity-api-setting.png)
+
+## APIの説明
 
 ### `GET /`
 
-動作確認用のエンドポイントです。
+APIサーバーの動作確認用エンドポイントです。
 
 Response:
 
@@ -172,7 +114,7 @@ Response:
 
 ### `POST /scores`
 
-ユーザー名とスコアを登録します。
+スコアを登録します。
 
 Request:
 
@@ -196,7 +138,8 @@ Response:
 ### `GET /ranking`
 
 スコアの高い順にランキングを取得します。
-`limit` を指定しない場合は100件、最大500件まで取得できます。
+`limit` を省略した場合は最大100件を返します。
+`limit` の最大値は500です。
 
 Example:
 
@@ -223,8 +166,8 @@ Response:
 
 ### `GET /scores/{score_id}/rank`
 
-スコアIDを指定して、そのスコアの順位を取得します。
-同点のスコアは同順位として扱います。
+登録済みスコアの順位を取得します。
+同じスコアは同順位として扱います。
 
 Example:
 
@@ -243,33 +186,35 @@ Response:
 }
 ```
 
-## サンプルデータ
-
-ランキングAPIを試しやすくするため、サンプルスコアデータを用意しています。
-
-通常のサンプルデータを投入する場合:
-
-```powershell
+## サンプルデータの利用
+データベースに登録するためのサンプルデータを準備しています。
+以下を実行することで、デフォルトのサンプルデータ`server/seed_data/sample_scores.json`をデータベースに登録することができます。
+```
 docker compose exec api python seed.py
 ```
 
-既存のスコアを削除してから投入する場合:
+`--clear`をつけることで、既存のスコアを削除してから、サンプルスコアを投入します。
 
-```powershell
+```
 docker compose exec api python seed.py --clear
 ```
 
-`seed.py` のデフォルトでは `server/seed_data/sample_scores.json` を使用します。
+また次のように指定することで、特定のjsonファイルを指定して、データベースを登録することもできます。
 
-`manual_test_scores.json` は、Swagger UIやAdminerから手動でデータを追加するときの参考データです。
-基本的にはCLIからまとめて投入せず、手動操作時に値をコピーして使います。
+```
+docker compose exec api python seed.py json_filename
+```
+`server/seed_data/sample_scores.json`の他に`server/seed_data/manual_test_scores.json` も用意しています。こちらは、AdminerやUnityクライアントから手動入力するときの参考データです。(`seed.py`を利用して、登録することもできます。)
 
-## Adminerの接続情報
+## Adminer
 
-Adminerでは、ブラウザからPostgreSQLのデータを確認できます。
-開発中の動作確認として、スコアデータの確認、登録、修正、削除を行うこともできます。
+Adminerは以下のURLから利用できます。
 
-`.env` をデフォルト値にしている場合、以下の内容でPostgreSQLに接続できます。
+```txt
+http://localhost:8081
+```
+
+接続情報は`.env`に依存しており、デフォルト設定の場合の接続情報は以下のようになります。
 
 ```txt
 System: PostgreSQL
@@ -279,64 +224,33 @@ Password: example_password
 Database: ranking
 ```
 
-## PostgreSQLをCLIで確認する
-
-PostgreSQLの対話モードに入る場合は、以下を実行します。
-
-```powershell
-docker compose exec db psql -U postgres -d ranking
-```
-
 ## Dev Containers
 
-VS Code Dev Containersを使うことで、Docker Composeの `api` サービスを開発環境として利用できます。
+このリポジトリには、Dev Container設定を含めています。
 
-Dev Containerでは、VS Codeはコンテナ内の `/workspace` を開きます。
-また、ローカルの `server/` はコンテナ内の `/app` にマウントされます。
+Dev Containerでは `/workspace` を開き、サーバーディレクトリを `/app` にマウントします。
 
 ```txt
 /workspace
-  リポジトリ全体を確認するための場所
+  リポジトリ全体
 
 /app
-  FastAPIサーバーの実行・編集に使う場所
+  FastAPIサーバーのディレクトリ
 ```
 
-利用する場合は、Docker Desktopを起動した状態でVS Codeから以下を実行します。
+VS Codeから以下を実行します。
 
 ```txt
 Dev Containers: Rebuild and Reopen in Container
 ```
 
-## 停止方法
-
-コンテナを停止する場合は以下を実行します。
-
-```powershell
-docker compose down
-```
-
-PostgreSQLのデータは名前付きvolume `postgres-data` に保存されるため、通常の `docker compose down` では削除されません。
-
-データも含めて削除したい場合のみ、以下を実行します。
-
-```powershell
-docker compose down -v
-```
-
-## 今後の改善案
-
-- APIサーバーとDBをクラウド環境へデプロイする
-- Unity側のランキング機能を再利用しやすい形に整理する
-- APIの自動テストを追加する
-- 認証やスコア改ざん対策を検討する
-
-## 参考ドキュメント
+## 参考資料
 
 - [FastAPI](https://fastapi.tiangolo.com/)
 - [SQLModel](https://sqlmodel.tiangolo.com/)
 - [UnityWebRequest](https://docs.unity3d.com/ScriptReference/Networking.UnityWebRequest.html)
 - [Docker Compose](https://docs.docker.com/compose/)
 - [Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers)
+- [Python Official Image](https://hub.docker.com/_/python)
 - [Postgres Docker Official Image](https://hub.docker.com/_/postgres)
 - [Adminer Docker Official Image](https://hub.docker.com/_/adminer)
